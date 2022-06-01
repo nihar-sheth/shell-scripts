@@ -14,17 +14,17 @@ if [ $# -lt 1 ]; then
 fi
 
 # Verify all arguments passed are files
-for arg in $@; do
-	if ! [ -f $arg ]; then
+for arg in "$@"; do
+	if ! [ -f "$arg" ]; then
 		echo "ERROR: $arg is not a file."
 		exit 1
 	fi
 done
 
-for file in $@; do
-	absolute_path=$(dirname $(realpath $file))/
-	filename=$(basename $file | awk -F '/' '{print tolower($NF)}') # TODO: Implement underscore replace
-	mv $file ${absolute_path}$filename
+for file in "$@"; do
+	absolute_path=$(dirname "$(realpath "$file")")/
+	filename=$(basename "$file" | awk -F '/' '{print tolower($NF)}') # TODO: Implement underscore replace
+	mv "$file" "${absolute_path}$filename"
 done
 
 exit 0
