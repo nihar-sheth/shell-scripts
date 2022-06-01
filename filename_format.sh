@@ -1,5 +1,6 @@
 # filename_format.sh
 # Date: 2022/05/31
+# Modified: 2022/06/01
 # Author: Nihar Sheth
 # Convert a file or set of files' names to a standard format I use: all lowercase with underscores as spaces.
 # Usage: $ ./filename_format.sh file ...
@@ -22,7 +23,8 @@ done
 
 for file in $@; do
 	absolute_path=$(dirname $(realpath $file))/
-	filename=$(basename $file | awk -F '/' '{print tolower($NF)}')
+	filename=$(basename $file | awk -F '/' '{print tolower($NF)}') # TODO: Implement underscore replace
 	mv $file ${absolute_path}$filename
 done
+
 exit 0
