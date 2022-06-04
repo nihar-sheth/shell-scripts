@@ -1,10 +1,9 @@
 # list_estatements.sh
 # Date: 2022/06/02
-# Modified: 2022/06/03
+# Modified: 2022/06/04
 # Author: Nihar Sheth
 # List eStatements for a given year in a readable list and interactively prompt to open its PDF file.
 # Usage: list_estatements.sh [year]
-# Note: Add valid working directories to set_directory() and format date string in list()
 
 #!/usr/bin/env bash
 
@@ -13,14 +12,19 @@ shopt -s nocasematch
 # Validate working directory and set directory-specific filename format parameters
 set_directory() {
     readonly WORKING_DIRECTORY=$(pwd | awk -F '/' '{print $NF}')
+
+    # Add future directories here
     case $WORKING_DIRECTORY in
         "chequing")
             readonly FILENAME_PATTERN="^\d{4}-\d{2}"
-            readonly FILENAME_FORMAT="yyyy-mm.pdf";;
+            readonly FILENAME_FORMAT="yyyy-mm.pdf"
+            readonly DATE_STRING_COMMAND='echo $file | cut -d. -f1 | xargs date -jf %Y-%m "+%B"';;
         "cibc_visa")
             readonly FILENAME_PATTERN="^\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}"
-            readonly FILENAME_FORMAT="yyyy-mm-dd_yyyy_mm-dd.pdf";;
-        *) echo "❌ ERROR: Cannot execute script from an invalid directory." && exit 1;;
+            readonly FILENAME_FORMAT="yyyy-mm-dd_yyyy_mm-dd.pdf"
+            readonly DATE_STRING_COMMAND='echo $file | cut -d. -f1 | awk -F_ '"'"'{system("date -jf %F \"+%B\" " $1); print "to"; system("date -jf %F \"+%B\" " $2)}'"'"' | tr "\n" " "';;
+        *)
+            echo "❌ ERROR: Cannot execute script from an invalid directory." && exit 1;;
     esac
 }
 
@@ -36,7 +40,7 @@ validate_filenames() {
     done
 }
 
-# Validate correct year format and that is within the valid range with available dates from eStatements
+# Validate correct year format and that is within the valid range with dates available from eStatements
 validate_year() {
     if ! echo $1 | grep -Eq '^\d{4}$'; then
         echo "❌ ERROR: Invalid year format. [yyyy]" && exit 1
@@ -59,6 +63,7 @@ interactive_prompt() {
     validate_year $year && list $year
 }
 
+# Open file from numbered list
 file_prompt() {
     read -p "Select file [#]: " file_number
     exit_check $file_number
@@ -73,21 +78,14 @@ file_prompt() {
     fi
 }
 
-# Format dates in a list and prompt to open a file by its list number
+# Format dates in a list and prompt to open a file
 list() {
     declare -i n=1
     declare date_str
     readonly SELECTED_FILES=($(ls $1*.pdf))
     echo "\neStatements from $1:"
     for file in ${SELECTED_FILES[@]}; do
-        case $WORKING_DIRECTORY in
-            "chequing")
-                date_str="$(echo $file | cut -d. -f1 | xargs date -jf %Y-%m "+%B")";;
-            "cibc_visa")
-                declare start_date="$(echo $file | cut -d. -f1 | awk -F_ '{print $1}' | xargs date -jf %F "+%B")"
-                declare end_date="$(echo $file | cut -d. -f1 | awk -F_ '{print $2}' | xargs date -jf %F "+%B")"
-                date_str="$start_date to $end_date"
-            esac
+        date_str=$(eval "$DATE_STRING_COMMAND")
         printf "%2d) %s\n" $n "$date_str"
         (( n++ ))
     done
@@ -95,13 +93,18 @@ list() {
     echo "" && file_prompt $n
 }
 
-set_directory && validate_filenames
+main() {
+    set_directory && validate_filenames
 
-# Allow for a year to be passed directly, bypassing the interactive prompt
-case $# in
-    0) interactive_prompt;;
-    1) validate_year $1 && list $1;;
-    *) echo "❌ ERROR: Too many arguments passed. [year]"; exit 1;;
-esac
+    # Allow for a year to be passed directly, bypassing the interactive prompt
+    case $# in
+        0) interactive_prompt;;
+        1) validate_year $1 && list $1;;
+        *) echo "❌ ERROR: Too many arguments passed. [year]"; exit 1;;
+    esac
 
-echo "✅ Opened $SELECTED_FILE" && exit 0
+    echo "✅ Opened $SELECTED_FILE"
+}
+
+main $@
+exit 0
