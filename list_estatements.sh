@@ -1,6 +1,6 @@
 # list_estatements.sh
 # Date: 2022/06/02
-# Modified: 2022/06/04
+# Modified: 2022/06/05
 # Author: Nihar Sheth
 # List eStatements for a given year in a readable list and interactively prompt to open its PDF file.
 # Usage: $ list_estatements.sh [year]
@@ -14,17 +14,26 @@ set_directory() {
     readonly WORKING_DIRECTORY=$(pwd | awk -F '/' '{print $NF}')
 
     # Add future directories here
+    # string_format(): define function to build date string in a human-readable format
+    # FILENAME_PATTERN: standard format regexp to validate filenames in working directory
+    # FILENAME_FORMAT: standard filename format for use in prompt hint
     case $WORKING_DIRECTORY in
         "chequing")
+            string_format() {
+                echo "$(echo $1 | cut -d. -f1 | xargs date -jf %Y-%m "+%B")"
+            }
             readonly FILENAME_PATTERN="^\d{4}-\d{2}"
-            readonly FILENAME_FORMAT="yyyy-mm.pdf"
-            readonly DATE_STRING_COMMAND='echo $file | cut -d. -f1 | xargs date -jf %Y-%m "+%B"';;
+            readonly FILENAME_FORMAT="yyyy-mm.pdf";;
         "cibc_visa")
+            string_format() {
+                declare start_month=$(echo $1 | cut -d. -f1 | awk -F_ '{print $1}' | xargs date -jf %F "+%B")
+                declare end_month=$(echo $1 | cut -d. -f1 | awk -F_ '{print $2}' | xargs date -jf %F "+%B")
+                echo "$start_month to $end_month"
+            }
             readonly FILENAME_PATTERN="^\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}"
-            readonly FILENAME_FORMAT="yyyy-mm-dd_yyyy_mm-dd.pdf"
-            readonly DATE_STRING_COMMAND='echo $file | cut -d. -f1 | awk -F_ '"'"'{system("date -jf %F \"+%B\" " $1); print "to"; system("date -jf %F \"+%B\" " $2)}'"'"' | tr "\n" " "';;
+            readonly FILENAME_FORMAT="yyyy-mm-dd_yyyy_mm-dd.pdf";;
         *)
-            echo "❌ ERROR: Cannot execute script from an invalid directory." && exit 1;;
+            echo "❌ ERROR: Cannot execute $(basename $0) from an invalid directory." && exit 1;;
     esac
 }
 
@@ -85,7 +94,7 @@ list() {
     readonly SELECTED_FILES=($(ls $1*.pdf))
     echo "\neStatements from $1:"
     for file in ${SELECTED_FILES[@]}; do
-        date_str=$(eval "$DATE_STRING_COMMAND")
+        date_str=$(string_format $file)
         printf "%2d) %s\n" $n "$date_str"
         (( n++ ))
     done
@@ -100,7 +109,7 @@ main() {
     case $# in
         0) interactive_prompt;;
         1) validate_year $1 && list $1;;
-        *) echo "❌ ERROR: Too many arguments passed. [year]"; exit 1;;
+        *) echo "❌ ERROR: Too many arguments passed. [year]" && exit 1;;
     esac
 }
 
