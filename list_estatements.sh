@@ -3,7 +3,7 @@
 # Modified: 2022/06/04
 # Author: Nihar Sheth
 # List eStatements for a given year in a readable list and interactively prompt to open its PDF file.
-# Usage: list_estatements.sh [year]
+# Usage: $ list_estatements.sh [year]
 
 #!/usr/bin/env bash
 
@@ -74,7 +74,7 @@ file_prompt() {
     else
         readonly SELECTED_FILE=${SELECTED_FILES[(( $file_number - 1 ))]}
         open $SELECTED_FILE
-        echo "✅ Opened $SELECTED_FILE" && exit 0
+        echo "✅ Opened $SELECTED_FILE"
     fi
 }
 
@@ -102,9 +102,6 @@ main() {
         1) validate_year $1 && list $1;;
         *) echo "❌ ERROR: Too many arguments passed. [year]"; exit 1;;
     esac
-
-    echo "✅ Opened $SELECTED_FILE"
 }
 
-main $@
-exit 0
+main $@ && exit 0

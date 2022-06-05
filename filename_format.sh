@@ -1,32 +1,29 @@
 # filename_format.sh
 # Date: 2022/05/31
-# Modified: 2022/06/01
+# Modified: 2022/06/04
 # Author: Nihar Sheth
 # Convert a file or set of files' names to a standard format that I use across my personal directories.
-# Usage: $ ./filename_format.sh file [...]
+# Usage: $ filename_format.sh file [...]
 
 #!/usr/bin/env bash
 
-# Verify minimum number of arguments passed
-if [ $# -lt 1 ]; then
-	echo "❌ ERROR: No files passed."
-	exit 1
-fi
+# Verify minimum number of arguments, if they exist and their validity
+validate_args() {
+	[ $# -eq 0 ] && echo "❌ ERROR: No files passed." && exit 1 
+	for arg in "$@"; do
+		! [ -a "$arg" ] && echo "❌ ERROR: $arg does not exist." && exit 1
+		! [ -f "$arg" ] && echo "❌ ERROR: $arg is a directory." && exit 1
+	done
+}
 
-# Verify all arguments passed are files before formatting
-for arg in "$@"; do
-	if ! [ -f "$arg" ]; then
-		echo "❌ ERROR: $arg is not a file."
-		exit 1
-	fi
-done
+main() {
+	validate_args "$@"
+	for file in "$@"; do
+		absolute_path=$(dirname "$(realpath "$file")")
+		converted_filename=$(basename "$file" | awk '{print tolower($0)}' | tr " " "_")
+		mv "$file" "${absolute_path}/${converted_filename}"
+	done
+	echo "✅ Filenames successfully formatted!"
+}
 
-# Format each filename using absolute path for safety
-for file in "$@"; do
-	absolute_path=$(dirname "$(realpath "$file")")/
-	converted_filename=$(basename "$file" | awk '{print tolower($0)}' | tr " " "_")
-	mv "$file" "${absolute_path}${converted_filename}"
-done
-
-echo "✅ Filenames formatted!"
-exit 0
+main "$@" && exit 0
