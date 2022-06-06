@@ -2,7 +2,7 @@
 
 # list_estatements.sh
 # Date: 2022/06/02
-# Modified: 2022/06/05
+# Modified: 2022/06/06
 # Author: Nihar Sheth
 # List eStatements for a given year in a readable list and interactively prompt to open its PDF file.
 # Usage: $ list_estatements.sh [year]

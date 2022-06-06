@@ -2,7 +2,7 @@
 
 # filename_format.sh
 # Date: 2022/05/31
-# Modified: 2022/06/04
+# Modified: 2022/06/06
 # Author: Nihar Sheth
 # Convert a file or set of files' names to a standard format that I use across my personal directories.
 # Usage: $ filename_format.sh file [...]
