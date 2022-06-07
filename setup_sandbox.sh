@@ -2,7 +2,7 @@
 
 # setup_sandbox.sh
 # Date: 2022/06/05
-# Modified: 2022/06/06
+# Modified: 2022/06/07
 # Author: Nihar Sheth
 # Quickly generate a sandbox directory with dummy files of various types for testing other scripts.
 # Usage: $ setup_sandbox.sh

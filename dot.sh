@@ -2,7 +2,7 @@
 
 # dot.sh
 # Date: 2022/06/06
-# Modified: 2022/06/06
+# Modified: 2022/06/07
 # Author: Nihar Sheth
 # Toggle a file's visibility by adding/removing a "." to its filename.
 # Usage: $ dot.sh file [...]
