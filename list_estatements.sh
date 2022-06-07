@@ -43,9 +43,9 @@ validate_filenames() {
     readonly YEARS=$(ls $FILES | awk '{print substr($0, 0, 4)}' | sort | uniq)
     readonly YEAR_RANGE=$(echo $YEARS | awk '{print $1"-"$NF}')
     for file in $FILES; do
-        if ! echo $file | grep -Eq $FILENAME_PATTERN; then
+        echo $file | grep -Eq $FILENAME_PATTERN || {
             echo "❌ ERROR: $file has an invalid filename, please rename or remove it. [$FILENAME_FORMAT]" && exit 1
-        fi
+        }
     done
 }
 
@@ -59,8 +59,8 @@ validate_year() {
 }
 
 # Exit program during interactive prompts
+readonly EXIT_COMMANDS=("e" "exit" "cancel")
 exit_check() {
-    readonly EXIT_COMMANDS=("e" "exit" "cancel")
     if [[ "${EXIT_COMMANDS[*]}" =~ "$1" ]]; then
         exit 0
     fi
@@ -76,15 +76,12 @@ interactive_prompt() {
 file_prompt() {
     read -p "Select file [#]: " file_number
     exit_check $file_number
-    if ! echo $file_number | grep -Eq '^\d+$'; then
-        echo "❌ ERROR: Integer selection required." && exit 1
-    elif [[ $file_number -ge $1 || $file_number -lt 1 ]]; then
-        echo "❌ ERROR: Out of selection range." && exit 1
-    else
-        readonly SELECTED_FILE=${SELECTED_FILES[(( $file_number - 1 ))]}
-        open $SELECTED_FILE
-        echo "✅ Opened $SELECTED_FILE"
-    fi
+    echo $file_number | grep -Eq '^\d+$' || { echo "❌ ERROR: Integer selection required." && exit 1; }
+    [[ $file_number -ge $1 || $file_number -lt 1 ]] && echo "❌ ERROR: Out of selection range." && exit 1
+    
+    readonly SELECTED_FILE=${SELECTED_FILES[(( $file_number - 1 ))]}
+    open $SELECTED_FILE
+    echo "✅ Opened $SELECTED_FILE"
 }
 
 # Format dates in a list and prompt to open a file

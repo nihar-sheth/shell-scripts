@@ -10,9 +10,17 @@
 readonly DIR_NAME="sandbox_$(date "+%F")/"
 readonly DIR_FORMAT="sandbox_????-??-??/"
 
+exists() {
+    [[ -d $1 ]]
+}
+
+writeable() {
+    [[ -w $1 ]]
+}
+
 # Make directory and populate with files
 generate() {
-    ! [ -w "$(pwd)" ] && echo "❌ ERROR: Working directory cannot be written to." && exit 1
+    [[ -w "$(pwd)" ]] || { echo "❌ ERROR: Working directory cannot be written to." && exit 1; }
 
     mkdir $DIR_NAME && cd $DIR_NAME
     touch "text_file_"{1..10}".txt" "image_file_"{1..5}".jpeg"
@@ -22,12 +30,13 @@ generate() {
     mkdir "subdirectory_"{1..3}
     touch "subdirectory_"{1..3}"/sub_files_"{1..5}
 }
+
 # Add sandbox directory to .gitignore if it exists
 [[ -a ".gitignore" && ! $(grep "^${DIR_FORMAT}" ".gitignore") ]] && printf "\n%s" "$DIR_FORMAT" >> ".gitignore"
 
 # Add write permission to existing sandbox directory if required and remove it
-if [ -d "sandbox_"????-??-??/ ]; then
-    [ -w "sandbox_"????-??-??/ ] || { echo "⚠️ Existing sandbox directory is missing write permissions, updating." && chmod +w $DIR_FORMAT; }
+if exists "sandbox_"????-??-??/; then
+    writeable "sandbox_"????-??-??/ || { echo "⚠️ Existing sandbox directory is missing write permissions, updating." && chmod +w $DIR_FORMAT; }
     rm -rf $DIR_FORMAT && echo "✅ Removed existing sandbox directory."
 fi
 generate

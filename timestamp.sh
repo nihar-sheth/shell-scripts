@@ -7,7 +7,7 @@
 # Update the modified date to the current date in my shell script headers.
 # Usage: $ timestamp.sh script.sh [...]
 
-[ $# -ne 0 ] || { echo "❌ ERROR: No scripts passed." && exit 1; }
+[[ $# -ne 0 ]] || { echo "❌ ERROR: No scripts passed." && exit 1; }
 
 readonly today=$(date "+%Y/%m/%d")
 change_date() {
@@ -16,8 +16,8 @@ change_date() {
 }
 
 for script in "$@"; do
-    [ -f "$script" ] || { echo "🚫 $script does not exist." && continue; }
+    [[ -e "$script" ]] || { echo "🚫 $script does not exist." && continue; }
     filename=$(basename "$script")
-    [ ${filename#*.} == "sh" ] || { echo "🚫 $filename is not a shell script." && continue; }
+    [[ ${filename#*.} == "sh" ]] || { echo "🚫 $filename is not a shell script." && continue; }
     change_date "$script" && echo "✅ $script header updated."
 done

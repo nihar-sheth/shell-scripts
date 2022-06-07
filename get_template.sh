@@ -8,4 +8,4 @@
 # Usage: $ get_template.sh
 
 readonly template_file=".header_template.txt"
-[ -e "$template_file" ] && { cat $template_file | pbcopy; exit 0; } || { echo "❌ ERROR: No template file found."; exit 1; }
+[[ -e "$template_file" ]] && { cat $template_file | pbcopy; exit 0; } || { echo "❌ ERROR: No template file found."; exit 1; }
