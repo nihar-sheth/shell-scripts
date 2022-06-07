@@ -10,12 +10,22 @@
 [ $# -ne 0 ] || { echo "❌ ERROR: No files passed." && exit 1; }
 
 for file in "$@"; do
-    [ ! -e "$file" ] && echo "❌ $file does not exist" && continue
+    [ ! -e "$file" ] && echo "🚫 $file does not exist." && continue
     path=$(dirname "$file")
-    [ ! -w "$path" ] && echo "🚫 $path cannot be written to." && continue
+    [ ! -w "$path" ] && echo "⛔️ $path cannot be written to." && continue
     
     filename=$(basename "$file")
-    [[ "$filename" =~ ^\. ]] && mv "$file" "$path/${filename:1}" && echo "🌝 $file is now visible."
-    [[ "$filename" =~ ^[A-z0-9_] ]] && mv "$file" "$path/.$filename" && echo "🌚 $file is now hidden."
+
+    # Make hidden file visible
+    [[ "$filename" =~ ^\. ]] && {
+        [ -e "$path/${filename:1}" ] && echo "🚫 $file: visible file by that name already exists." && continue
+        mv "$file" "$path/${filename:1}" && echo "🌝 $file: visible."
+    }
+
+    # Make visible file hidden
+    [[ "$filename" =~ ^[A-z0-9_] ]] && {
+        [ -e "$path/.$filename" ] && echo "🚫 $file: hidden file by that name already exists." && continue
+        mv "$file" "$path/.$filename" && echo "🌚 $file: hidden."
+    }
 done
 exit 0
