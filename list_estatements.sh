@@ -2,7 +2,7 @@
 
 # list_estatements.sh
 # Date: 2022/06/02
-# Modified: 2022/06/06
+# Modified: 2022/06/10
 # Author: Nihar Sheth
 # List eStatements for a given year in a readable list and interactively prompt to open its PDF file.
 # Usage: $ list_estatements.sh [year]
@@ -33,7 +33,7 @@ set_directory() {
             readonly FILENAME_PATTERN="^\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}"
             readonly FILENAME_FORMAT="yyyy-mm-dd_yyyy_mm-dd.pdf";;
         *)
-            echo "❌ ERROR: Cannot execute $(basename $0) from an invalid directory." && exit 1;;
+            echo "❌ ERROR: Cannot execute $(basename $0) from an invalid directory." >&2 && exit 1;;
     esac
 }
 
@@ -44,7 +44,7 @@ validate_filenames() {
     readonly YEAR_RANGE=$(echo $YEARS | awk '{print $1"-"$NF}')
     for file in $FILES; do
         echo $file | grep -Eq $FILENAME_PATTERN || {
-            echo "❌ ERROR: $file has an invalid filename, please rename or remove it. [$FILENAME_FORMAT]" && exit 1
+            echo "❌ ERROR: $file has an invalid filename, please rename or remove it. [$FILENAME_FORMAT]" >&2 && exit 1
         }
     done
 }
@@ -52,9 +52,9 @@ validate_filenames() {
 # Validate correct year format and that is within the valid range with dates available from eStatements
 validate_year() {
     if ! echo $1 | grep -Eq '^\d{4}$'; then
-        echo "❌ ERROR: Invalid year format. [yyyy]" && exit 1
+        echo "❌ ERROR: Invalid year format. [yyyy]" >&2 && exit 1
     elif ! [[ $YEARS == *$1* ]]; then
-        echo "❌ ERROR: No eStatements available for $1. [$YEAR_RANGE]"&& exit 1
+        echo "❌ ERROR: No eStatements available for $1. [$YEAR_RANGE]" >&2 && exit 1
     fi
 }
 
@@ -76,8 +76,8 @@ interactive_prompt() {
 file_prompt() {
     read -p "Select file [#]: " file_number
     exit_check $file_number
-    echo $file_number | grep -Eq '^\d+$' || { echo "❌ ERROR: Integer selection required." && exit 1; }
-    [[ $file_number -ge $1 || $file_number -lt 1 ]] && echo "❌ ERROR: Out of selection range." && exit 1
+    echo $file_number | grep -Eq '^\d+$' || { echo "❌ ERROR: Integer selection required." >&2 && exit 1; }
+    [[ $file_number -ge $1 || $file_number -lt 1 ]] && echo "❌ ERROR: Out of selection range." >&2 && exit 1
     
     readonly SELECTED_FILE=${SELECTED_FILES[(( $file_number - 1 ))]}
     open $SELECTED_FILE
@@ -106,7 +106,7 @@ main() {
     case $# in
         0) interactive_prompt;;
         1) validate_year $1 && list $1;;
-        *) echo "❌ ERROR: Too many arguments passed. [year]" && exit 1;;
+        *) echo "❌ ERROR: Too many arguments passed. [year]" >&2 && exit 1;;
     esac
 }
 

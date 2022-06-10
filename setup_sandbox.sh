@@ -2,7 +2,7 @@
 
 # setup_sandbox.sh
 # Date: 2022/06/05
-# Modified: 2022/06/07
+# Modified: 2022/06/10
 # Author: Nihar Sheth
 # Quickly generate a sandbox directory with dummy files of various types for testing other scripts.
 # Usage: $ setup_sandbox.sh
@@ -20,7 +20,7 @@ writeable() {
 
 # Make directory and populate with files
 generate() {
-    [[ -w "$(pwd)" ]] || { echo "❌ ERROR: Working directory cannot be written to." && exit 1; }
+    [[ -w "$(pwd)" ]] || { echo "❌ ERROR: Working directory cannot be written to." >&2 && exit 1; }
 
     mkdir $DIR_NAME && cd $DIR_NAME
     touch "text_file_"{1..10}".txt" "image_file_"{1..5}".jpeg"

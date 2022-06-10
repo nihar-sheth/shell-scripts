@@ -2,12 +2,12 @@
 
 # timestamp.sh
 # Date: 2022/06/07
-# Modified: 2022/06/07
+# Modified: 2022/06/10
 # Author: Nihar Sheth
 # Update the modified date to the current date in my shell script headers.
 # Usage: $ timestamp.sh script.sh [...]
 
-[[ $# -ne 0 ]] || { echo "❌ ERROR: No scripts passed." && exit 1; }
+[[ $# -ne 0 ]] || { echo "❌ ERROR: No scripts passed." >&2 && exit 1; }
 
 readonly today=$(date "+%Y/%m/%d")
 change_date() {
@@ -16,8 +16,8 @@ change_date() {
 }
 
 for script in "$@"; do
-    [[ -e "$script" ]] || { echo "🚫 $script does not exist." && continue; }
+    [[ -e "$script" ]] || { echo "🚫 $script does not exist." >&2 && continue; }
     filename=$(basename "$script")
-    [[ ${filename#*.} == "sh" ]] || { echo "🚫 $filename is not a shell script." && continue; }
+    [[ ${filename#*.} == "sh" ]] || { echo "🚫 $filename is not a shell script." >&2 && continue; }
     change_date "$script" && echo "✅ $script header updated."
 done

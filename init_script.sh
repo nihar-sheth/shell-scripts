@@ -2,7 +2,7 @@
 
 # init_script.sh
 # Date: 2022/06/07
-# Modified: 2022/06/08
+# Modified: 2022/06/10
 # Author: Nihar Sheth
 # Generate a script, populate header fields and grant it execution permissions.
 # Usage: $ init_script.sh [script ...]
@@ -10,12 +10,12 @@
 shopt -s nocasematch
 
 readonly HEADER_TEMPLATE="/Users/nihar/dev/scripts/.header_template.txt"
-[[ -e "$HEADER_TEMPLATE" ]] || { echo "❌ ERROR: Could not find header template." && exit 1; }
+[[ -e "$HEADER_TEMPLATE" ]] || { echo "❌ ERROR: Could not find header template." >&2 && exit 1; }
 
 validate_args() {
     for arg in "$@"; do
         [[ "$arg" =~ ^e$ ]] && exit 0
-        [[ -z "$arg" ]] && echo "❌ ERROR: No names passed." && exit 1
+        [[ -z "$arg" ]] && echo "❌ ERROR: No names passed." >&2 && exit 1
     done
 }
 
@@ -31,8 +31,10 @@ make_name() {
 
 readonly today=$(date "+%Y/%m/%d")
 make_script() {
-    [[ -d $(dirname "$1") ]] || { echo "🚫 $1 has an invalid path." && exit 1; }
-    [[ -e "$1" ]] && echo "🚫 $1 already exists." && return
+    path="$(dirname "$1")"
+    [[ -d "$path" ]] || { echo "🚫 $1 has an invalid path." >&2 && return; }
+    [[ -w "$path" ]] || { echo "⛔️ $path cannot be written to." >&2 && return; }
+    [[ -e "$1" ]] && echo "🚫 $1 already exists." >&2 && return
     cat "$HEADER_TEMPLATE" > "$1" && chmod +x "$1"
     
     script_name="$(basename "$1")"
