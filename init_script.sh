@@ -4,8 +4,8 @@
 # Date: 2022/06/07
 # Modified: 2022/06/08
 # Author: Nihar Sheth
-# one-line description
-# Usage: $ 
+# Generate a script, populate header fields and grant it execution permissions.
+# Usage: $ init_script.sh [script ...]
 
 shopt -s nocasematch
 
