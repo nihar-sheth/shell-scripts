@@ -7,5 +7,7 @@
 # Copy my standard script header template to the system clipboard.
 # Usage: $ get_template.sh
 
-readonly template_file=".header_template.txt"
-[[ -e "$template_file" ]] && { cat $template_file | pbcopy; exit 0; } || { echo "❌ ERROR: No template file found." >&2 && exit 1; }
+readonly HEADER_TEMPLATE="/Users/nihar/dev/scripts/.header_template.txt"
+[[ -e "${HEADER_TEMPLATE}" ]] \
+    && { cat "${HEADER_TEMPLATE}" | pbcopy; exit 0; } \
+    || { echo "❌ ERROR: No template file found at $(dirname "${HEADER_TEMPLATE}")" >&2 && exit 1; }

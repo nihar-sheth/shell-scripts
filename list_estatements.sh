@@ -17,34 +17,37 @@ set_directory() {
     # string_format(): define function to build date string in a human-readable format
     # FILENAME_PATTERN: standard format regexp to validate filenames in working directory
     # FILENAME_FORMAT: standard filename format for use in prompt hint
-    case $WORKING_DIRECTORY in
+    case "${WORKING_DIRECTORY}" in
         "chequing")
             string_format() {
                 echo "$(echo $1 | cut -d. -f1 | xargs date -jf %Y-%m "+%B")"
             }
             readonly FILENAME_PATTERN="^\d{4}-\d{2}"
-            readonly FILENAME_FORMAT="yyyy-mm.pdf";;
+            readonly FILENAME_FORMAT="yyyy-mm.pdf"
+            ;;
         "cibc_visa")
             string_format() {
                 declare start_month=$(echo $1 | cut -d. -f1 | awk -F_ '{print $1}' | xargs date -jf %F "+%B")
                 declare end_month=$(echo $1 | cut -d. -f1 | awk -F_ '{print $2}' | xargs date -jf %F "+%B")
-                echo "$start_month to $end_month"
+                echo "${start_month} to ${end_month}"
             }
             readonly FILENAME_PATTERN="^\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}"
-            readonly FILENAME_FORMAT="yyyy-mm-dd_yyyy_mm-dd.pdf";;
+            readonly FILENAME_FORMAT="yyyy-mm-dd_yyyy_mm-dd.pdf"
+            ;;
         *)
-            echo "❌ ERROR: Cannot execute $(basename $0) from an invalid directory." >&2 && exit 1;;
+            echo "❌ ERROR: Cannot execute $(basename "$0") from an invalid directory." >&2 && exit 1
+            ;;
     esac
 }
 
 # Validate that filenames match standard format before processing anything
 validate_filenames() {
     readonly FILES=$(ls *.pdf)
-    readonly YEARS=$(ls $FILES | awk '{print substr($0, 0, 4)}' | sort | uniq)
-    readonly YEAR_RANGE=$(echo $YEARS | awk '{print $1"-"$NF}')
-    for file in $FILES; do
-        echo $file | grep -Eq $FILENAME_PATTERN || {
-            echo "❌ ERROR: $file has an invalid filename, please rename or remove it. [$FILENAME_FORMAT]" >&2 && exit 1
+    readonly YEARS=$(ls ${FILES} | awk '{print substr($0, 0, 4)}' | sort | uniq)
+    readonly YEAR_RANGE=$(echo ${YEARS} | awk '{print $1"-"$NF}')
+    for file in "${FILES}"; do
+        echo "${file}" | grep -Eq "${FILENAME_PATTERN}" || {
+            echo "❌ ERROR: "${file}" has an invalid filename, please rename or remove it. ["${FILENAME_FORMAT}"]" >&2 && exit 1
         }
     done
 }
@@ -53,8 +56,8 @@ validate_filenames() {
 validate_year() {
     if ! echo $1 | grep -Eq '^\d{4}$'; then
         echo "❌ ERROR: Invalid year format. [yyyy]" >&2 && exit 1
-    elif ! [[ $YEARS == *$1* ]]; then
-        echo "❌ ERROR: No eStatements available for $1. [$YEAR_RANGE]" >&2 && exit 1
+    elif ! [[ "${YEARS}" == *$1* ]]; then
+        echo "❌ ERROR: No eStatements available for $1. ["${YEAR_RANGE}"]" >&2 && exit 1
     fi
 }
 
@@ -67,21 +70,21 @@ exit_check() {
 }
 
 interactive_prompt() {
-    read -p "Select year [$YEAR_RANGE]: " year
-    exit_check $year
-    validate_year $year && list $year
+    read -p "Select year [${YEAR_RANGE}]: " year
+    exit_check "${year}"
+    validate_year "${year}" && list "${year}"
 }
 
 # Open file from numbered list
 file_prompt() {
     read -p "Select file [#]: " file_number
-    exit_check $file_number
-    echo $file_number | grep -Eq '^\d+$' || { echo "❌ ERROR: Integer selection required." >&2 && exit 1; }
-    [[ $file_number -ge $1 || $file_number -lt 1 ]] && echo "❌ ERROR: Out of selection range." >&2 && exit 1
+    exit_check "${file_number}"
+    echo "${file_number}" | grep -Eq '^\d+$' || { echo "❌ ERROR: Integer selection required." >&2 && exit 1; }
+    [[ "${file_number}" -ge $1 || "${file_number}" -lt 1 ]] && echo "❌ ERROR: Out of selection range." >&2 && exit 1
     
-    readonly SELECTED_FILE=${SELECTED_FILES[(( $file_number - 1 ))]}
-    open $SELECTED_FILE
-    echo "✅ Opened $SELECTED_FILE"
+    readonly SELECTED_FILE="${SELECTED_FILES[(( ${file_number} - 1 ))]}"
+    open "${SELECTED_FILE}"
+    echo "✅ Opened ${SELECTED_FILE}"
 }
 
 # Format dates in a list and prompt to open a file
@@ -89,14 +92,14 @@ list() {
     declare -i n=1
     declare date_str
     readonly SELECTED_FILES=($(ls $1*.pdf))
-    echo "\neStatements from $1:"
-    for file in ${SELECTED_FILES[@]}; do
-        date_str=$(string_format $file)
-        printf "%2d) %s\n" $n "$date_str"
+    echo "eStatements from $1:"
+    for file in "${SELECTED_FILES[@]}"; do
+        date_str="$(string_format ${file})"
+        printf "%2d) %s\n" ${n} "${date_str}"
         (( n++ ))
     done
 
-    echo "" && file_prompt $n
+    echo "" && file_prompt "${n}"
 }
 
 main() {
@@ -104,10 +107,10 @@ main() {
 
     # Allow for a year to be passed directly, bypassing the interactive prompt
     case $# in
-        0) interactive_prompt;;
-        1) validate_year $1 && list $1;;
-        *) echo "❌ ERROR: Too many arguments passed. [year]" >&2 && exit 1;;
+        0) interactive_prompt ;;
+        1) validate_year "$1" && list "$1" ;;
+        *) echo "❌ ERROR: Too many arguments passed. [year]" >&2 && exit 1 ;;
     esac
 }
 
-main $@ && exit 0
+main "$@" && exit 0

@@ -12,12 +12,12 @@
 readonly today=$(date "+%Y/%m/%d")
 change_date() {
     # regexp: YYYY/MM/DD
-    sed -i "\|# Modified|s|\([[:digit:]]\{2,4\}\/\?\)\{3\}|$today|" "$1"
+    sed -i "\|# Modified|s|\([[:digit:]]\{2,4\}\/\?\)\{3\}|${today}|" "$1"
 }
 
 for script in "$@"; do
-    [[ -e "$script" ]] || { echo "🚫 $script does not exist." >&2 && continue; }
-    filename=$(basename "$script")
-    [[ ${filename#*.} == "sh" ]] || { echo "🚫 $filename is not a shell script." >&2 && continue; }
-    change_date "$script" && echo "✅ $script header updated."
+    [[ -e "${script}" ]] || { echo "🚫 "${script}" does not exist." >&2 && continue; }
+    filename=$(basename "${script}")
+    [[ ${filename#*.} == "sh" ]] || { echo "🚫 "${filename}" is not a shell script." >&2 && continue; }
+    change_date "${script}" && echo "✅ "${script}" header updated."
 done

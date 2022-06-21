@@ -11,17 +11,17 @@
 validate_args() {
 	[[ $# -eq 0 ]] && echo "❌ ERROR: No files passed." >&2 && exit 1 
 	for arg in "$@"; do
-		[[ -e "$arg" ]] || { echo "❌ ERROR: $arg does not exist." >&2 && exit 1; }
-		[[ -f "$arg" ]] || { echo "❌ ERROR: $arg is a directory." >&2 && exit 1; }
+		[[ -e "${arg}" ]] || { echo "❌ ERROR: "${arg}" does not exist." >&2 && exit 1; }
+		[[ -f "${arg}" ]] || { echo "❌ ERROR: "${arg}" is a directory." >&2 && exit 1; }
 	done
 }
 
 main() {
 	validate_args "$@"
 	for file in "$@"; do
-		absolute_path=$(dirname "$(realpath "$file")")
-		converted_filename=$(basename "$file" | awk '{print tolower($0)}' | tr " " "_")
-		mv "$file" "${absolute_path}/${converted_filename}"
+		absolute_path=$(dirname "$(realpath "${file}")")
+		converted_filename=$(basename "${file}" | awk '{print tolower($0)}' | tr " " "_")
+		mv "${file}" "${absolute_path}/${converted_filename}"
 	done
 	echo "✅ Filenames successfully formatted!"
 }
