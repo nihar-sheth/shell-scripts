@@ -2,10 +2,10 @@
 
 # jedi.sh
 # Date: 2022/06/21
-# Modified: 2022/06/21
+# Modified: 2022/06/23
 # Author: Nihar Sheth
-# one-line description
-# Usage: $ 
+# Print a random Jedi quote from Star Wars: The Clone Wars TV show.
+# Usage: $ jedi.sh
 
 readonly quotes_file="/Users/nihar/dev/scripts/resources/jedi_quotes.txt"
 [[ -f "${quotes_file}" ]] || { echo "❌ ERROR: File does not exist at $(dirname ${quotes_file})" && exit 1; }
