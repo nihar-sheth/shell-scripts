@@ -16,7 +16,7 @@ make_name() {
 }
 
 write_to_file() {
-    echo "Directory listing for $(pwd)" > "$1"
+    printf "Directory listing for $(pwd)\n[$(date)]\n" > "$1"
     tree -dn >> "$1"
 }
 
