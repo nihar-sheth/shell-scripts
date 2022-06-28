@@ -2,7 +2,7 @@
 
 # setup_sandbox.sh
 # Date: 2022/06/05
-# Modified: 2022/06/10
+# Modified: 2022/06/28
 # Author: Nihar Sheth
 # Quickly generate a sandbox directory with dummy files of various types for testing other scripts.
 # Usage: $ setup_sandbox.sh
@@ -29,6 +29,8 @@ generate() {
     touch "A TERRIBLE filename syntax "{1..3}".png"
     mkdir "subdirectory_"{1..3}
     touch "subdirectory_"{1..3}"/sub_files_"{1..5}
+    mkdir "Directories with SPACES "{1..3}
+    touch "Directories with SPACES "{1..3}"/sub_file_"{1..5}
 }
 
 # Add sandbox directory to .gitignore if it exists

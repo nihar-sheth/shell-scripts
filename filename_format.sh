@@ -2,7 +2,7 @@
 
 # filename_format.sh
 # Date: 2022/05/31
-# Modified: 2022/06/10
+# Modified: 2022/06/28
 # Author: Nihar Sheth
 # Convert a file or set of files' names to a standard format that I use across my personal directories.
 # Usage: $ filename_format.sh file [...]
@@ -12,7 +12,7 @@ validate_args() {
 	[[ $# -eq 0 ]] && echo "❌ ERROR: No files passed." >&2 && exit 1 
 	for arg in "$@"; do
 		[[ -e "${arg}" ]] || { echo "❌ ERROR: "${arg}" does not exist." >&2 && exit 1; }
-		[[ -f "${arg}" ]] || { echo "❌ ERROR: "${arg}" is a directory." >&2 && exit 1; }
+		[[ -f "${arg}" ]] || { echo "❌ ERROR: "${arg}" is not a file." >&2 && exit 1; }
 	done
 }
 
